@@ -2,7 +2,7 @@ import { useState } from 'react'
 import AverageCalculatorComponent from '../components/averageCalc'
 import DateIntervalCalculatorComponent from '../components/dateInterval'
 import DynamicInputShuffleWithModalComponent from '../components/FantasyFootballDraftShuffle'
-import ChangeBackgroundColorWithDynamicButtonColorComponent from '../components/backgroundColorChange'
+import BackgroundColorChangeWithAriaCurrentComponent from '../components/backgroundColorChange'
 import './App.css'
 
 function App() {
@@ -18,8 +18,9 @@ function App() {
       </div>
       <div>
         <h2>Change Background Color</h2>
-        <ChangeBackgroundColorWithDynamicButtonColorComponent />
+        <BackgroundColorChangeWithAriaCurrentComponent />
       </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between'}}>
       <div>
         <h2>Average Calculator</h2>
         <AverageCalculatorComponent />
@@ -27,11 +28,13 @@ function App() {
       <div>
         <h2>Date Interval Calculator</h2>
         <DateIntervalCalculatorComponent />
+        </div>
       </div>
       <div>
         <h2>Fantasy Football Draft Team Shuffle</h2>
         <DynamicInputShuffleWithModalComponent />
       </div>
+      
     </>
   )
 }
