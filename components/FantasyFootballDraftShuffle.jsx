@@ -1,71 +1,74 @@
-import React, { useState } from 'react';
 
-// Define the DynamicInputShuffleComponent
-const DynamicInputShuffleComponent = () => {
-  
-  // Initialize state variables to store the user-specified number of inputs
-  const [numberOfInputs, setNumberOfInputs] = useState(0);
-  
-  // Initialize an array to store the input values
-  const [inputValues, setInputValues] = useState([]);
-  
-  // Initialize state variable to store the shuffled list
-  const [shuffledList, setShuffledList] = useState([]);
+import React, { useState, useEffect } from 'react';
 
-  // Function to shuffle an array
-  const shuffleArray = (array) => {
-    let currentIndex = array.length, randomIndex;
-    while (currentIndex !== 0) {
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-      [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+// Define the DynamicInputShuffleWithModalComponent
+const DynamicInputShuffleWithModalComponent = () => {
+  const [inputCount, setInputCount] = useState(0);
+  const [names, setNames] = useState([]);
+  const [shuffledNames, setShuffledNames] = useState([]);
+  const [newWindow, setNewWindow] = useState(null);
+
+  // Function to handle input change
+  const handleInputChange = (e, index) => {
+    const newNames = [...names];
+    newNames[index] = e.target.value;
+    setNames(newNames);
+  };
+
+  // Function to shuffle the array of names
+  const shuffleNames = () => {
+    const shuffled = [...names];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-    return array;
+    setShuffledNames(shuffled);
   };
 
-  // Function to shuffle the input values and update the state
-  const shuffleAndSetList = () => {
-    const shuffled = shuffleArray([...inputValues]);
-    setShuffledList(shuffled);
+  // Function to open the modal in a new window
+  const openModal = () => {
+    const windowFeatures = 'width=400,height=400';
+    const windowObjectReference = window.open('', '_blank', windowFeatures);
+    setNewWindow(windowObjectReference);
   };
 
-  // Function to handle changes in input fields
-  const handleInputChange = (index, event) => {
-    const values = [...inputValues];
-    values[index] = event.target.value;
-    setInputValues(values);
+  // Function to close the modal window
+  const closeModal = () => {
+    if (newWindow) {
+      newWindow.close();
+      setNewWindow(null);
+    }
   };
+
+  useEffect(() => {
+    if (newWindow) {
+      newWindow.document.write(`
+        <html>
+          <body>
+            <button onclick="window.opener.closeModal()">Close Modal</button>
+            <input type="number" onchange="window.opener.setInputCount(event.target.value)" />
+            <div id="inputs"></div>
+            <button onclick="window.opener.shuffleNames()">Shuffle</button>
+          </body>
+        </html>
+      `);
+
+      for (let i = 0; i < inputCount; i++) {
+        const inputElement = newWindow.document.createElement('input');
+        inputElement.type = 'text';
+        inputElement.style.display = 'block';
+        inputElement.addEventListener('input', (e) => handleInputChange(e, i));
+        newWindow.document.getElementById('inputs').appendChild(inputElement);
+      }
+    }
+  }, [newWindow, inputCount]);
 
   return (
     <div>
-      {/* Input field for the user to specify the number of inputs */}
-      <div>
-        <label>Number of Inputs: </label>
-        <input type="number" value={numberOfInputs} onChange={(e) => {
-          setNumberOfInputs(e.target.value);
-          setInputValues(new Array(Number(e.target.value)).fill(''));
-        }} />
-      </div>
-
-      {/* Dynamically generated input fields */}
-      {new Array(Number(numberOfInputs)).fill(null).map((_, index) => (
-        <div key={index}>
-          <input type="text" value={inputValues[index] || ''} onChange={(e) => handleInputChange(index, e)} />
-        </div>
-      ))}
-
-      {/* Button to trigger the shuffle */}
-      <button onClick={shuffleAndSetList}>Shuffle</button>
-
-      {/* Display the shuffled list on the DOM in a table */}
+      <button onClick={openModal}>Open Modal</button>
       <table>
-        <thead>
-          <tr>
-            <th>Output Names</th>
-          </tr>
-        </thead>
         <tbody>
-          {shuffledList.map((name, index) => (
+          {shuffledNames.map((name, index) => (
             <tr key={index}>
               <td>{name}</td>
             </tr>
@@ -76,5 +79,4 @@ const DynamicInputShuffleComponent = () => {
   );
 };
 
-
-export default DynamicInputShuffleComponent;
+export default DynamicInputShuffleWithModalComponent;
